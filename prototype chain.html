@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>原型链</title>
+</head>
+<body>
+<script type="text/javascript">
+    /**
+     *
+     * @param param
+     * @constructor
+     * 构造函数继承的问题
+     *
+     */
+
+    /*function A(param) {
+        if(!param){
+            throw 'Param required';
+        }
+        this.param = param;
+    }
+    A.prototype.x = 10;
+    let a = new A(20);
+    console.log(a.x,a.param);
+
+    function B() {
+
+    }
+    B.prototype = new A();*/
+
+    /**
+     *
+     * 原型链标准模式
+     *
+     */
+
+    /*function A(){
+        alert('A.[[Call]] activate');
+        this.x = 10;
+    }
+    A.prototype.y = 20;
+    let a = new A();
+    console.log('a实例',[a.x,a.y]); // x(自身),y(继承)
+    function B(){
+        // 也可以使用A.apply(this,arguments)
+        A.apply(this,arguments); // 这一行是设置实例的自身属性
+    }
+
+    // 继承，通过空的中间构造函数将原型连在一起
+    let F = function () {};
+    F.prototype = A.prototype;  // 引用
+    B.prototype = new F();
+    B.superproto = A.prototype;  // 显示引用到另一个原型上，"sugar"
+
+    // 修复原型的constructor属性，否则就是A了
+    B.prototype.constructor = B;
+    let b = new B();
+    console.log('b实例',[b.x,b.y])    // x(自身),y(继承)*/
+
+    // 工具函数
+    let inherit = (function () {
+        function F() {}
+        return function (child,parent) {
+            F.prototype = parent.prototype;
+            child.prototype = new F;
+            child.prototype.constructor = child;
+            child.superproto = parent.prototype;
+            return child;
+        };
+    })();
+    function A() {}
+    A.prototype.x = 10;
+
+    function B(){}
+    inherit(B,A);
+    B.prototype.y = 20;
+    B.prototype.foo = function () {
+        alert('B#foo');
+    };
+    let b =new B();
+    console.log(b.x);
+    function C(){}
+    inherit(C,B);
+
+    // 使用"superproto"语法糖
+    // 调用父原型同名方法
+    C.prototype.foo = function () {
+        C.superproto.foo.call(this);
+        alert("C#foo");
+    };
+    let c =new C();
+    console.log("c实例",[c.x,c.y]);
+    c.foo();
+</script>
+</body>
+</html>

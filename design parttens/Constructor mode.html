@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>构造函数模式</title>
+</head>
+<body>
+<script type="text/javascript">
+    // 基本用法
+    /*function Person(name,age,job){
+        this.name = name;
+        this.age = age;
+        this.job = job;
+        this.output = function () {
+            return this.name + '今年' + this.age + '岁';
+        };
+    }
+
+    let person1 = new Person('ykk',22,'web前端');
+    let person2 = new Person('cc',21,'student');
+    console.log(person1.output());
+    console.log(person2.output());*/
+
+
+    // 上面的例子非常方便，但是有一个问题，首先是继承很麻烦，其次是output()在
+    // 每次创建对象的时候都重新定义了
+    // 最好的方法是让所有的Person类型的实例都共享这个方法
+
+    // 可以用如下方式解决
+   /* function Person(name, age, job) {
+        this.name = name;
+        this.age = age;
+        this.job = job;
+        this.output = output;
+    }
+    function output() {
+        return this.name + '今年' + this.age + '岁';
+    }*/
+
+    /**
+     * 更好的方式，构造函数与原型组合
+     */
+    // 利用多个实例扩共享一个原型的理论，我们扩展上面的代码
+    /*function  Person(name, age, job) {
+        this.name = name;
+        this.age = age;
+        this.job = job;
+    }
+    /!*
+    注意：这里用的Object.prototype.方法名，而不是Object.prototype
+    主要是用来避免重写定义原型prototype对象
+     *!/
+    Person.prototype.output = function (){
+        return this.name + '今年' + this.age + '岁了';
+    };
+    let person1 = new Person('ykk',22,'web前端');
+    let person2 = new Person('cc',21,'student');
+    console.log(person1.output());
+    console.log(person2.output());*/
+
+    // 如果不使用new操作符的话，他会当做函数调用，这些属性就会写在全局上
+    // 下面强制使用new
+    function Person(name, age, job){
+        if(!(this instanceof Person)){
+            return new Person(name, age, job);
+        }
+        this.name = name;
+        this.age = age;
+        this.job = job;
+        this.output = function () {
+            return this.name + '今年' + this.age + '岁';
+        }
+    }
+    let person1 = new Person('ykk',22,'web前端');
+    let person2 = Person('cc',21,'student');
+    console.log(typeof person1);
+    console.log(person1.output());
+    console.log(typeof person2);
+    console.log(person2.output());
+
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>单例模式</title>
+</head>
+<body>
+
+</body>
+<script type="text/javascript">
+    /*let mySingleton = function(){
+        //这里声明私有变量和方法
+        let privateVariable = 'something private';
+        function showPrivate(){
+            console.log(privateVariable);
+        }
+
+        // 公有变量和方法（可以访问私有变量和方法）
+        return {
+            publicMethod: function (){
+                showPrivate();
+            },
+            publicVar:'the public can see this!'
+        };
+    };
+    let single = mySingleton();
+    single.publicMethod();
+    console.log(single.publicVar);*/
+
+    // 如果想只有在使用的时候才初始化，为了节约资源，我们可以在另外一个构造函数里来初始化这些代码
+   /* let Singleton = (function () {
+        let instantiated;
+        function init(){
+            //这里定义代码
+            return {
+                publicMethod:function (){
+                    console.log('hello world');
+                },
+                publicProperty:'test'
+            };
+        }
+
+        return {
+            getInstance: function () {
+                if(!instantiated){
+                    instantiated = init();
+                }
+                return instantiated;
+            }
+        }
+    })();
+
+    //调用公共的方法来实现实例
+    Singleton.getInstance().publicMethod();*/
+
+
+    /**
+     *     单例一般用在系统之间各种模块的通信协调上
+     */
+    /*let SingletonTester = (function () {
+
+        // 参数：传递给单例的一个参数集合
+        function Singleton(args){
+
+            // 设置args变量为接受到的参数或空
+            var args = args || {};
+            //设置name参数
+            this.name = 'SingletonTester';
+            // 设置pointX的值
+            this.pointX = args.pointX || 6;
+            // 设置pointY的值
+            this.pointY = args.pointY || 10;
+        }
+
+        // 实例容器
+        let instance;
+        let _static = {
+            name: 'SingletonTester',
+            getInstance: function (args) {
+                if(instance === undefined){
+                    instance = new Singleton(args);
+                }
+                return instance;
+            }
+        };
+        return _static;
+    })();
+
+    let singletonTest = SingletonTester.getInstance({pointX:5});
+    console.log(singletonTest.pointX);
+    let anotherTest = SingletonTester.getInstance({pointX:100});
+    console.log(anotherTest.pointX);*/
+
+    /**
+     *  其他实现方式
+     */
+
+    //方法1
+    /*function Universe(){
+        //判断是否存在实例
+        if(typeof Universe.instance === 'object'){
+            return Universe.instance;
+        }
+
+        // 其他内容
+        this.start_time = 0;
+        this.bang = 'Big';
+
+        // 缓存
+        Universe.instance = this;
+
+        // 隐式返回this
+    }
+
+    // 测试
+    var uni = new Universe();
+    var uni2 = new Universe();
+    console.log(uni === uni2);
+    console.log(uni.bang===uni2.bang);*/
+
+
+    // 方法2
+    /*function Universe() {
+
+        // 缓存的实例
+        let instance = this;
+
+        // 其他内容
+        this.start_time = 0;
+        this.bang = 'big';
+        // 重写构造函数
+        Universe = function () {
+            return instance;
+        };
+    }
+
+    // 测试
+    let uni = new Universe();
+    let uni2 = new Universe();
+    uni.bang = 'ykk';
+    console.log(uni === uni2);
+    console.log(uni2.bang);*/
+
+
+    // 方法3
+    /*function Universe(){
+
+        // 缓存实例
+        let instance;
+        // 重新构造函数
+        Universe = function Universe() {
+            return instance;
+        };
+
+        // 后期处理原型属性
+        Universe.prototype = this;
+        instance = new Universe();
+        instance.constructor = Universe;
+        // 其他功能
+        instance.start_time = 0;
+        instance.bang = 'Big';
+
+        return instance;
+    }
+
+    // 测试
+    var uni = new Universe();
+    var uni2 = new Universe();
+    console.log(uni === uni2);
+
+    // 添加原型属性
+    Universe.prototype.nothing = true;
+    var uni = new Universe();
+    Universe.prototype.everything = true;
+    var uni2 = new Universe();
+    console.log(uni.nothing);
+    console.log(uni2.nothing);
+    console.log(uni.everything);
+    console.log(uni2.everything);
+    console.log(uni.constructor === Universe);*/
+
+
+    // 方法4
+    let Universe;
+    (function () {
+        let instance;
+        Universe = function Universe() {
+            if(instance){
+                return instance;
+            }
+            instance = this;
+
+            // 其他内容
+            this.start_time = 0;
+            this.bang = 'big';
+        };
+    })();
+
+    // 测试代码
+    let a = new Universe();
+    let b = new Universe();
+    alert(a === b);
+    a.bang = 'ykk';
+    alert(b.bang);
+
+    // 说实话，没搞懂为什么要用到单例模式
+</script>
+</html>
