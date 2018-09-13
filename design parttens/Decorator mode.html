@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>装饰者模式</title>
+</head>
+<body>
+<script type="text/javascript">
+    /**
+     *
+     * 装饰者模式提供比继承更有弹性的替代方案。装饰者用于包装铜接口的对象，
+     * 不仅允许向方法添加行为，而且可以将方法设置成原始对象调用
+     *
+     * 装饰者用于通过重载方法的方式添加新功能，该模式可以在被装饰前面
+     * 或者后面加上自己的行为以达到特定的目的
+     *
+     */
+
+    /**
+     * 装饰者模式的好处
+     * 传统继承中，在子类中增加行为会影响原有类所有的实例，但是装饰者不会
+     * 它能给不同对象各自添加新行为
+     */
+
+    // 需要装饰的类(函数)
+   /* function Macbook(){
+        this.cost = function () {
+            return 1000;
+        };
+    }
+    function Memory(macbook) {
+        this.cost = function () {
+            return macbook.cost() + 75;
+        };
+    }
+    function BlurayDrive(macbook){
+        this.cost = function () {
+            return macbook.cost() + 300;
+        };
+    }
+    function Insurance(macbook){
+        this.cost = function () {
+            return macbook.cost() + 250;
+        };
+    }
+
+    // 用法
+    let myMacbook = new Insurance(new Memory(new Macbook()));
+    console.log(myMacbook.cost());*/
+
+   function ConcreteClass(){
+       this.performTask = function (){
+           this.preTask();
+           console.log("doing something");
+           this.postTask();
+       };
+   }
+   function AbstractDecorator(decorated){
+       this.performTask = function (){
+           decorated.performTask();
+       };
+   }
+   function ConcreteDecoratorClass(decorated){
+       this.base = AbstractDecorator;
+       this.base(decorated);
+
+       decorated.preTask = function () {
+           console.log('pre-calling...');
+       };
+       decorated.postTask = function () {
+           console.log('post-calling...');
+       };
+   }
+   let concrete = new ConcreteClass();
+   let decorator1 = new ConcreteDecoratorClass(concrete);
+   let decorator2 = new ConcreteDecoratorClass(decorator1);
+   decorator2.performTask();
+   console.log(decorator2);
+   // 装饰者模式是将已有的功能动态的添加更多功能的一种方式，吧每个
+    // 要装饰的内容放在单独的函数里，然后用该函数包装所要装饰的已有函数对象。
+    // 在执行特殊行为的时候，调用代码就可以根据需要有选择的、按顺序的使用装饰功能来包装对象。
+    // 优点是把类的核心职责和装饰功能区分开了。
+</script>
+</body>
+</html>

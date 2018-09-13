@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>代码复用模式</title>
+</head>
+<body>
+<script type="text/javascript">
+    /**
+     *
+     * 四种代码复用的最佳实践
+     *
+     */
+
+    /**
+     * 原型继承
+     */
+    // 原型继承让父对象作为子对象的原型，从而达到继承目的:
+    function object(o){
+        function F(){}
+        F.prototype = o;
+        return new F();
+    }
+
+    // 要继承的父对象
+    let parent = {
+        name: "papa"
+    };
+    let child = object(parent);
+
+    // 测试
+    console.log(child.name);
+
+    // 父构造函数
+    function Person(){
+        this.name = 'Adam';
+    }
+    Person.prototype.getName = function () {
+        return this.name;
+    };
+     let papa = new Person();
+     let kid = object(papa);
+     console.log(kid.getName());
+     let kid2 = object(Person.prototype);
+     console.log(typeof kid.getName);
+     console.log(typeof kid.name);
+     console.log(typeof kid2.getName);
+     console.log(typeof kid2.name);
+</script>
+</body>
+</html>

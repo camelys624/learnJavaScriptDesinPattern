@@ -6,7 +6,27 @@
 </head>
 <body>
 <script type="text/javascript">
+function getBeerById(id, callback) {
+    // 使用ID来请求数据，然后返回数据
+    aysncRequest('GET', 'beer.uri?id=' + id,function (resp){
+        //callback调用response
+        callback(resp.responseText);
+    });
+}
 
+let el = document.querySelector('#test');
+el.addEventListener('click',getBeerByIdBridge,false);
+
+function getBeerByIdBridge(e) {
+    getBeerById(this.id,function (beer) {
+        console.log('Requested Beer:' + beer);
+    });
+}
+
+// 建造者模式主要用于“分步构造一个复杂的对象”，在这其中“分步骤”是一个稳定的算法，
+// 而复杂对象的各个部分经常发生变化，
+// 其优点是：建造者模式的“加工工艺”是暴露的，这样使得建造者模式更加灵活，
+// 并且建造者模式解耦了组装过程和创建具体部件，我们不用去关心每个组件是如何组装的
 </script>
 </body>
 </html>
