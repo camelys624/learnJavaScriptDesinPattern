@@ -16,7 +16,7 @@
      * 原型继承
      */
     // 原型继承让父对象作为子对象的原型，从而达到继承目的:
-    function object(o){
+    /*function object(o){
         function F(){}
         F.prototype = o;
         return new F();
@@ -46,6 +46,213 @@
      console.log(typeof kid.name);
      console.log(typeof kid2.getName);
      console.log(typeof kid2.name);
+
+     // ES5页提供了一个类似的方法Object.create用于继承对象
+    var child1 = Object.create(parent);
+    var child1 = Object.create(parent,{
+        age:{value:2}
+    });
+    console.log(child1.hasOwnProperty("age"));  // true*/
+
+    // 可以更细粒度的在第二个参数上定义属性
+    /*let man = Object.create(null);
+
+    // then，创建包含属性的配置属性
+    // 属性设置为可写，可枚举
+    let config = {
+        writable:true,
+        enumerable:true,
+        configurable:true
+    };
+
+    // 使用Object.definePrototype()来添加新属性
+    // 定义一个封装函数
+    let defineProp = function (obj, key, value) {
+        config.value = value;
+        Object.defineProperty(obj, key, config);
+    };
+    defineProp(man,'car','Delorean');
+    defineProp(man,'dob','1981');
+    defineProp(man,'beard',false);
+
+    // 继承
+    let driver = Object.create(man);
+    defineProp(driver,'topSpeed','100mph');
+    console.log(driver.topSpeed);
+
+    // 值得注意的是，Object.create(null)创建的对象原型是undefined,
+    // 也就是没有toString和valueOf方法，所以alert(man);会出错,
+    // 但是alert(man.car);是没有问题的
+    // alert(man);
+    alert(driver.car);*/
+
+    // 模式2:复制所有属性进行继承
+    // 浅拷贝
+    /*function extend(parent, child){
+        let i;
+        child = child || {};
+        for(i in parent){
+            if (parent.hasOwnProperty(i)){
+                child[i] = parent[i];
+            }
+        }
+        return child;
+    }
+
+    let dad = {
+        counts: [1,2,3],
+        reads: {paper:true}
+    };
+
+    let kid = extend(dad);
+    kid.counts.push(4);
+    console.log(dad.counts.toString());     // 1,2,3,4
+    console.log(kid.reads===dad.reads);     // true*/
+
+    /* 深拷贝 */
+    /*function extendDeep(parent, child){
+        let i,
+            toStr = Object.prototype.toString,
+            astr = "[object Array]";
+        child = child || {};
+        for(i in parent){
+            if(parent.hasOwnProperty(i)){
+                if(typeof parent[i] === 'object'){
+                    child[i] = (toStr.call(parent[i] === astr)?[]:{});
+                    extendDeep(parent[i], child[i]);
+                }else {
+                    child[i] = parent[i];
+                }
+            }
+        }
+        return child;
+    }
+    let dad = {
+        counts: [1,2,3],
+        reads: {paper:true}
+    };
+
+    let kid = extendDeep(dad);
+    kid.counts.push(4);
+    console.log(kid.counts.toString());
+    console.log(dad.counts.toString());     // 1,2,3
+    console.log(kid.reads===dad.reads);     // false
+    kid.reads.paper = false;
+    // console.log(typeof dad.counts);
+    console.log(dad.reads);*/
+
+
+    // 模式3:混合
+    /* 混入就是讲一个对象的一个或多个（或全部）属性(或方法)复制到另一个对象 */
+    /*
+        function mix(){
+            let arg,prop,child = {};
+            for(arg = 0;arg < arguments.length;arg += 1){
+                for(prop in arguments[arg]){
+                    if(arguments[arg].hasOwnProperty(prop)){
+                        child[prop] = arguments[arg][prop];
+                    }
+                }
+            }
+            return child;
+        }
+        let cake = mix(
+            {eggs:2,large:true},
+            {butter:1,salted:true},
+            {flour:'3 cups'},
+            {sugar:'sure!'}
+        );
+        console.dir(cake);*/
+
+    // 另一个例子
+    /*let Car = function (settings){
+        this.model = settings.model || 'no model provided';
+        this.colour = settings.colour || 'no colour provided';
+    };
+
+    // Mixin
+    let Mixin = function (){};
+    Mixin.prototype = {
+        driveForward: function () {
+            console.log('drive forward');
+        },
+        driveBackward: function (){
+            console.log('drive backward');
+        }
+    };
+
+    // 定义的两个参数分别是被混入的对象(receiving)和从哪里混入的对象(giving)
+    function augment(receivingObj, givingObj){
+        // 如果提供了指定的方法名称的话，也就是参数多于3个
+        if (arguments[2]){
+            for (let i = 2,len = arguments.length; i < len;i++){
+                receivingObj.prototype[arguments[i]] = givingObj.prototype[arguments[i]];
+            }
+        }
+        else{
+            for (let methodName in givingObj.prototype){
+                // 检查receiving对象内部不包含要混入的名字，如果包含就不混入了
+                if(!receivingObj.prototype[methodName]){
+                    receivingObj.prototype[methodName] = givingObj.prototype[methodName];
+                }
+            }
+        }
+    }
+    augment(Car,Mixin,'driveForward','driveBackward');
+
+    // 创建新对象Car
+    let vehicle = new Car({model:'Ford Escort', colour:'blue'});
+
+    // 测试是否成功得到混入的方法
+    vehicle.driveForward();
+    vehicle.driveBackward();*/
+
+    // 模式4:借用方法
+    /**
+     *
+     * 一个对象借用另一个对象的一个或多个方法，而这两个对象之间不会有什么直接联系
+     *
+     */
+    let one = {
+        name: 'object',
+        say: function (greet) {
+            return greet + ', ' + this.name;
+        }
+    };
+
+    // 测试
+    console.log(one.say('hi'));
+    let two = {
+        name: 'another object'
+    };
+    console.log(one.say.apply(two,['hello']));
+
+    // 将say赋值给一个变量，this将指向全局变量
+    let say = one.say;
+    console.log(say('hoho'));
+
+    // 传入一个回调函数callback
+    let yetanother = {
+        name:'Yet another object',
+        method: function (callback) {
+            return callback('Hola');
+        }
+    };
+    console.log(yetanother.method(one.say));    // Hola,undefined
+
+    function bind(o,m){
+        return function () {
+            return m.apply(o, [].slice.call(arguments));
+        };
+    }
+    let twosay = bind(two, one.say);
+    console.log(twosay('yo'));
+
+    let twosay2 = one.say.bind(two);
+    console.log(twosay2('Bonjour'));
+
+    let twosay3 = one.say.bind(two, 'Enchante');
+    console.log(twosay3());
 </script>
 </body>
 </html>
