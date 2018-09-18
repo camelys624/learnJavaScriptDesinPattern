@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>命令模式</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    /**
+     *  命令模式与普通函数有所不同,它可以用来对方法调用进行参数话化处理和传送
+     *  经过这样处理的方法调用可以在任何需要的时候执行
+     */
+
+    /**
+     * 命令的结构：
+     *  1. 最简形式的命令对象是一个操作和用以调用这个操作的对象的结合体
+     *  2. 所有的命令对象都有一个执行操作。其用途是调用命令对象所绑定的操作
+     *  3. 在大多数命令对象中，这个操作是一个名为execute或者run方法。
+     *  4. 使用同样接口的所有命令对象都可以被同等对待
+     */
+
+
+    let CarManager = {
+        // 请求数据
+        requestInfo: function (model, id) {
+            return 'The information for ' + model + ' with ID ' + id + ' is foobar ';
+        },
+        // 购买汽车
+        buyVehicle: function (model, id) {
+            return 'You have successfully purchased Item'
+                + id + ', a ' + model;
+        },
+
+        // 组织view
+        arrangeViewing: function (model, id) {
+            return 'You have successfully booked a viewing of' + model + ' ( ' + id + ' ) ';
+        }
+    };
+    /**
+     * 可以通过调用函数来简单执行manager的命令,然而在一些情况下,我们并不想直接调用函数内部的方法
+     * 这样会增加对象与对象之间的依赖
+     * 我们希望实现如下这种功能的调用
+     */
+    /*CarManage.execute({commandType:"buyVehicle",operand1:'Fora Escort',
+     operand2: '453543'});*/
+    // console.log(CarManager.arrangeViewing('Ferrari','2324441'));
+    CarManager.execute = function (command) {
+        return CarManager[command.request](command.model, command.carID);
+    };
+    console.log(CarManager.execute({request: "arrangeViewing", model: 'Ferrari', carID: '123131'}));
+    console.log(CarManager.execute({request: "requestInfo", model: 'Ford Mondeo', carID: '76632'}));
+    console.log(CarManager.execute({request: 'requestInfo', model: 'Ford Escort', carID: '2311132'}));
+    console.log(CarManager.execute({request: 'buyVehicle', model: 'Ford Escort', carID: '222222'}));
+</script>
+</body>
+</html>
