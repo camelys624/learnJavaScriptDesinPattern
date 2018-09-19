@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<!--suppress JSAnnotator -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>代理模式</title>
+</head>
+<body>
+<script type="text/javascript">
+    // 定义：代理模式(Proxy)，为其他对象提供一种代理以控制这个对象的访问。
+    /*
+    * 代理模式使得代理对象控制具体对象的引用。代理几乎可以使任何对象：文件、资源、内存中的对象，或者一些难以复制的东西。
+    */
+
+    // 例子：某男要送礼物给某女，但不知道她的联系方式或者不好意思，所以委托某某去送，那么这个某某就是个代理：
+    // 先声明美女对象
+    let girl = function (name) {
+        this.name = name;
+    };
+    // 这里是某男
+    let boy = function (girl) {
+        this.girl = girl;
+        this.sendGift = function (gift) {
+            alert("Hi" + girl.name + ",某男送你一个礼物:" + gift);
+        }
+    };
+
+    // 某某是代理
+    let proxyTom = function (girl) {
+        this.girl = girl;
+        this.sendGift = function (gift) {
+            (new boy(girl)).sendGift(gift);
+        }
+    };
+
+    // 调用：
+    let proxy = new proxyTom(new girl('酸奶小妹'));
+    proxy.sendGift('999朵玫瑰');
+
+</script>
+<h1>Dave Matthews videos</h1>
+<p><span id="toggle-all">全选/反选</span></p>
+<ol id="vids">
+    <li>
+        <input type="checkbox" checked/>
+        <a href="http://new.music.yahoo.com/videos/--2158073">Gravedigger</a>
+    </li>
+    <li>
+        <input type="checkbox" checked/>
+        <a href="http://new.music.yahoo.com/videos/--4472739">Save Me</a>
+    </li>
+    <li>
+        <input type="checkbox" checked>
+        <a href="http://new.music.yahoo.com/videos/--45286339">Crush</a>
+    </li>
+    <li>
+        <input type="checkbox" checked>
+        <a href="http://new.music.yahoo.com/videos/--2144530">Don't Drink the water</a>
+    </li>
+    <li>
+        <input type="checkbox" checked>
+        <a href="http://new.music.yahoo.com/vedios/--217241800">Funny the Way It Is</a>
+    </li>
+    <li>
+        <input type="checkbox" checked>
+        <a href="http://new.music.yahoo.com/vedios/--2144532">What Would You Say</a>
+    </li>
+</ol>
+</body>
+<script type="text/javascript">
+    let $ = function (id) {
+        return document.getElementById(id);
+    };
+    let http = {
+        makeRequest: function (ids, callback) {
+            let url = 'http://query.yahooapis.com/v1/public/yql?q=',
+                sql = 'select * from music.video.id where ids IN ("%ID%")',
+                format = "format=json",
+                handler = "callback=" + callback,
+                script = document.createElement('script');
+            sql = sql.replace('%ID%', ids.join('","'));
+            sql = encodeURIComponent(sql);
+            url += sql + '&' + format + '&' + handler;
+            script.src = url;
+            document.body.appendChild(script);
+        }
+    };
+    // 代理对象如下:
+    let proxy = {
+        ids: [],
+        delay: 50,
+        timeout: null,
+        callback: null,
+        context: null,
+        // 设置请求的id和callback以便在播放的时候触发回调
+        makeRequest: function (id, callback, context) {
+            // 添加到队列dd to queue
+            this.ids.push(id);
+            this.callback = callback;
+            this.context = context;
+            // 设置timeout
+            if (!this.timeout) {
+                this.timeout = setTimeout(function () {
+                    proxy.flush();
+                }, this.delay);
+            }
+        },
+        // 触发请求，使用代理职责调用了http.makeRequest
+        flush: function () {
+            // proxy.handler为请求yahoo时的callback
+            http.makeRequest(this.ids, 'proxy.handler');
+            // 请求数据以后，紧接着执行proxy.handler方法（里面另一个设置的callback）
+            // 清除timeout和队列
+            this.timeout = null;
+            this.ids = [];
+        },
+        handler: function (data) {
+            let i, max;
+            // 单个视频的callback调用
+            if (parseInt(data.query.count, 10) === 1) {
+                proxy.callback.call(proxy.context, data.query.results.Video);
+                return;
+            }
+
+            // 多个视频的callback调用
+            for (i = 0, max = data.query.results.Video.length; i < max; i += 1) {
+                proxy.callback.call(proxy.context, data.query.results.Video[i]);
+            }
+        }
+    };
+    // 视频处理模块主要有3种子功能：获取信息，展示信息，播放视频
+    let videos = {
+        // 初始化播放器代码，开始播放
+        getPlayer: function (id) {
+            return '' + `
+             <object width="400" height="255" id="uvp_fop" allowFullScreen="true">
+                <param name="movie" value="http://d.yimg.com/m/up/fop/embedflv/swf/fop.swf"/>`
+                + '<param name="flashVars" value="id=v"' + id +
+                '&amp;eId=1301797&amp;lang=us&amp;enableFullScreen=0&amp;shareEnable=1/>' +
+                '<param name="wmode" value="transparent"/>' +
+                '<embed height="255" width="400" id="uvp_fop" allowFullScreen="true"' +
+                'src="http://d.yimg.com/m/up/fop/emebflv/swf/fop.swf"' +
+                'type="application/x-shockwave-flash"' + 'flashvars="id=v"' + id +
+                '&amp;eID=1301797&amp;lang=us&amp;ympsc=41953298&amp;enableFullScreen=1&amp;shareEnable=1' +
+                '">' +
+                '</object>';
+        },
+        // 拼接信息显示内容，然后再append到li的底部里显示
+        updateList: function (data) {
+            let id,
+                html = '',
+                info;
+            if (data.query) {
+                data = data.query.results.Video;
+            }
+            id = data.id;
+            html += '<img src="' + data.Image[0].url + '" width="50"/>';
+            html += '<h2>' + data.title + '</h2>';
+            html += '<p>' + data.copyrightYear + ',' + data.label + '</p>';
+            if (data.Album) {
+                html += '<p>Album:' + data.Album.Release.title + ',' + data.Album.Release.releaseYear + '</p><br/>';
+            }
+            html += '<p><a class="play" href="http://new.music.yahoo.com/videos/--' + id + '">&raquo; play</a></p>';
+            info = document.createElement('div');
+            info.id = 'info' + id;
+            info.innerHTML = html;
+            $('v' + id).appendChild(info);
+        },
+        // 获取信息并显示
+        getInfo: function (id) {
+            let info = $('info' + id);
+            if (!info) {
+                proxy.makeRequest(id, videos.updateList, videos); // 执行代理职责，并传入videos.updateList回调函数
+                return;
+            }
+            if (info.style.display === 'none') {
+                info.style.display = '';
+            } else {
+                info.style.display = 'none';
+            }
+        }
+    };
+    // 我们将事件绑定在<ol>元素上，然后检测惦记的是否是a链接，如果是说明我们点击的是视频地址，然后就可以播放了：
+    $('vids').onclick = function (e) {
+        let src, id;
+        e = e || window.event;
+        src = e.target || e.srcElement;
+        // 不是链接的话就不继续处理了
+        if (src.nodeName.toUpperCase() !== "A") {
+            return;
+        }
+        // 停止冒泡
+        if (typeof e.preventDefault === 'function')
+            e.preventDefault();
+        e.retunValue = false;
+        id = src.href.split('--')[1];
+
+        // 如果点击的是已经产生的视频信息区域的链接play，就开始播放
+        // 然后return不继续了
+        if (src.className === 'play') {
+            src.parentNode.innerHTML = videos.getPlayer(id);
+            return;
+        }
+        src.parentNode.id = 'v' + id;
+        videos.getInfo(id); // 这个才是第一次点击的时候显示视频信息的处理代码
+    };
+    // 全选
+    $('toggle-all').onclick = function (e) {
+        let hrefs, i, max, id;
+        hrefs = $('vids').getElementsByTagName('a');
+        for (i = 0, max = hrefs.length; i < max; i++) {
+            // 忽略play链接
+            if (hrefs[i].className === 'play') {
+                continue;
+            }
+            // 忽略没有选择的项
+            if (!hrefs[i].parentNode.firstChild.checked) {
+                continue;
+            }
+            id = hrefs[i].href.split('--')[1];
+            hrefs[i].parentNode.id = 'v' + id;
+            videos.getInfo(id);
+        }
+    };
+    // 代理模式一般适用于如下场合:
+    // 1. 远程代理，也就是为了一个对象在不同的地址空间提供局部代表，这样可以隐藏一个对象存在于不同地址空间的事实，
+    // 就像web service里的代理类一样
+    // 2. 虚拟代理，根据需要创建开销很大的对象，通过它来存放实例化需要很长时间的真实对象,比如浏览器的渲染时候现显示问题。
+    // 而图片可以慢慢显示
+    // 3. 安全代理，用来控制真实对象访问时的权限，一般用于对象应该有不同的访问权限。
+    // 4. 智能指引，只当调用真实的对象时，代理处理另外一些事情。
+</script>
+</html>
