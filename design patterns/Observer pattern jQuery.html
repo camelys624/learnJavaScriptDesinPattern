@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery版本</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<h2>jQuery版本</h2>
+<p>根据jQuery新增的on/off功能，我们可以定义jQuery版的观察者</p>
+<script type="text/javascript">
+    (function ($){
+        let o = $({});
+        $.subscribe = function () {
+            o.on.apply(o, arguments);
+        };
+        $.unsubscribe = function () {
+            o.off.apply(o, arguments);
+        };
+        $.publish = function () {
+            o.trigger.apply(o,arguments);
+        };
+    })(jQuery);
+    // 调用方法更为简单
+    // 回调函数
+    function handle(e,a,b,c){
+        // e是事件对象，不需要关注
+        console.log(a + b + c);
+    }
+    // 订阅
+    $.subscribe('/some/topic', handle);
+    // 发布
+    $.publish('/some/topic', ["a","b","c"]);    // >abc
+    $.unsubscribe('/some/topic',handle);    // 退订
+    // 订阅
+    $.subscribe('/some/topic', function (e,a,b,c) {
+        console.log(a+b+c);
+    });
+    $.publish('/some/topic',['a','b','c']); // >abc
+    // 退订(退订使用的是/some/topic名称，而不是调用回调函数)
+    $.unsubscribe('/some/topic');
+</script>
+</body>
+</html>

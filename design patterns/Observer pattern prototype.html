@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>利用原型特性实现观察者模式</title>
+</head>
+<body>
+<h2>我们可以利用原型的特性实现一个观察者模式</h2>
+<script type="text/javascript">
+    function Observer() {
+        this.fns = [];
+    }
+
+    Observer.prototype = {
+        subscribe: function (fn) {
+            this.fns.push(fn);
+        },
+        unsubscribe: function (fn) {
+            this.fns = this.fns.filter(function (el) {
+                if (el !== fn) {
+                    return el;
+                }
+            });
+        },
+        update: function (o, thisObj) {
+            let scope = thisObj || window;
+            this.fns.forEach(function (el) {
+                el.call(scope, o);
+            });
+        }
+    };
+    // 测试
+    let o = new Observer;
+    let f1 = function (data) {
+        console.log('Robbin: ' + data + ',赶紧干活了！');
+    };
+    let f2 = function (data) {
+      console.log('Randall: ' + data + ', 找他加工资去！');
+    };
+    o.subscribe(f1);
+    o.subscribe(f2);
+
+    o.update('Tom回来了!');
+
+    // 退订f1
+    o.unsubscribe(f1);
+    o.update("Tom来了！");
+</script>
+</body>
+</html>
