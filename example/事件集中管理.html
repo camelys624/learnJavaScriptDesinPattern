@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>事件集中管理</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<h2>例1：事件集中管理</h2>
+<p>
+    如果我们有很多类型相似的元素或者结构（比如菜单，或者ul里的多个li）都需要监控他的click事件的话，
+    就需要对每个元素进行事件绑定，如果元素有非常多，那性能就可想而知，而结合冒泡的知识，任何一个子元素有
+    事件触发的话，那触发的事件将冒泡到上一级元素，所以利用这个特性，我们可以利用享元模式对这些相似元素的
+    父级元素进行事件监控，然后判断里面哪个子元素有事件触发了，再进行进一步的操作。
+</p>
+<p>
+    我们结合jQuery的bind/unbind方法来举例
+</p>
+<div id="container">
+    <div class="toggle" href="#">
+        更多信息(地址)
+        <span class="info">
+            这里是更多信息
+        </span>
+    </div>
+    <div class="toggle" href="#">
+        更多信息（地图）
+        <span class="info">
+            <iframe src="https://map.baidu.com/"></iframe>
+        </span>
+    </div>
+</div>
+<script type="text/javascript">
+let stateManage = {
+    fly:function () {
+        let self = this;
+        $('#container').unbind.bind("click",function (e) {
+            let target = $(e.originalTarget || e.srcElement);
+            // 判断是哪一个元素
+            if(target.is("div .toggle")){
+                self.handleClick(target);
+            }
+        });
+    },
+    handleClick: function (elem) {
+        elem.find('span').toggle('slow');
+    }
+};
+</script>
+</body>
+</html>
