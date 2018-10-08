@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>设计模式之模板方法</title>
+</head>
+<body>
+<h2>介绍</h2>
+<p>
+    模板方法(TemplateMethod)定义了一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不
+    改变一个算法的结构即可重定义该算法的某些特定步骤。
+</p>
+<p>
+    模板方法是一种代码复用的基本技术，在类库中尤为重要，因为他们提取了类库中的公共行为。模板方法导致一种反向的
+    控制结构，这种结构就是传说中的“好莱坞法则”，即“别找我们，我们找你”，这指的是父类调用一个类的操作，而不是相
+    反。具体体现是面向对象编程语言里的抽象类（以及其中的抽象方法），以及继承该抽象类（和抽象方法）的子类。
+</p>
+<h2>正文</h2>
+<p>
+    举个栗子，泡茶和泡咖啡有同样的步骤，比如烧开水(boilWater)、冲泡(brew)、倒在杯子里(pourOnCup)，加小料
+    (addCondiments)等等。但是每种饮料冲泡的方法以及所加的小料不一样，所以我们可以利用模板方法来实现这个主要
+    步骤。
+</p>
+<script type="text/javascript">
+    // 首先定义抽象步骤
+    let CaffeineBeverage = function () {
+
+    };
+    CaffeineBeverage.prototype.prepareRecipe = function () {
+      this.boilWater();
+      this.brew();
+      this.pourOnCup();
+      if (this.customerWantsCondiments()) {
+        // 如果可以加小料，就加上
+        this.addCondiments();
+      }
+    };
+    CaffeineBeverage.prototype.boilWater = function () {
+      console.log("先把水烧开！！！");
+    };
+    CaffeineBeverage.prototype.pourOnCup = function () {
+      console.log("请把饮料倒进杯子里！！");
+    };
+    CaffeineBeverage.prototype.brew = function () {
+      throw new Error("该方法必须被重写！！");
+    };
+    CaffeineBeverage.prototype.addCondiments = function () {
+      throw new Error("该方法必须被重写！！！");
+    };
+    // 默认加上小料
+    CaffeineBeverage.prototype.customerWantsCondiments = function () {
+      return true;
+    }
+    /*
+    * 该函数在原型上扩展了所有的基础步骤，以及主要步骤，冲泡和加小料步骤没有实现，供具体饮料所对应的函数
+    * 来实现，另外是否加小料(customerWantsCondiments)默认返回true，子函数重写的时候可以重写该值。
+    * */
+    // 下面两个函数分别是冲咖啡和冲茶对应的函数
+
+    // 冲咖啡
+    let Coffee = function () {
+      CaffeineBeverage.apply(this);
+    };
+    Coffee.prototype = new CaffeineBeverage();
+    Coffee.prototype.brew = function () {
+      console.log("从咖啡机到咖啡进去！！！")
+    }
+</script>
+</body>
+</html>
