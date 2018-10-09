@@ -24,9 +24,6 @@
 <script type="text/javascript">
     // 首先定义抽象步骤
     let CaffeineBeverage = function () {
-
-    };
-    CaffeineBeverage.prototype.prepareRecipe = function () {
       this.boilWater();
       this.brew();
       this.pourOnCup();
@@ -35,6 +32,9 @@
         this.addCondiments();
       }
     };
+    // CaffeineBeverage.prototype.prepareRecipe = function () {
+    //
+    // };
     CaffeineBeverage.prototype.boilWater = function () {
       console.log("先把水烧开！！！");
     };
