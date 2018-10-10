@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>原型模式</title>
+</head>
+<body>
+<h2>介绍</h2>
+<p>
+    原型模式(prototype)是指用原型实例只想创建对象的种类，并且通过拷贝这些原型创建新的对象。
+</p>
+<h2>正文</h2>
+<p>
+    对于原型模式，我们可以利用JavaScript特有的原型继承特性去创建对象的方式，也就是创建的一个
+    对象作为另一个对象的prototype属性值。原型对象本省就是有效地利用了每个构造器创建的对象，例
+    如，如果一俄构造函数的原型包含了一个name属性(见后面的例子)，那痛国这个构造函数创建的对象都
+    会有这个属性。
+</p>
+<p>
+    真正的原型继承是作为最新版的ECMAScript5标准提出的，使用Object.create方法来创建这样的对象，
+    该方法创建指定的对象，其对象的prototype有指定的对象（也就是该方法传入的第一个参数对象），也可
+    以包含其他可选的指定属性。例如Object.create(prototype,optionalDescriptorObjects)，下
+    面的例子里也可以看到这个用法。
+</p>
+<script type="text/javascript">
+    // 因为不是构造函数，所以不用大写
+    let someCar = {
+      drive: function () {
+
+      },
+      name: '马自达 3'
+    };
+
+    // 使用Object.create创建一个新车x
+    let anotherCar = Object.create(someCar);
+    console.log(anotherCar.name);
+    anotherCar.name = '丰田佳美';
+    console.log(anotherCar.name);
+
+    // Object.create运行是直接从其他对象继承过来，使用该方法的第二个参数，我们可以初始化额外的其
+    // 他属性。比如：
+    let vehicle = {
+      getModel: function () {
+        console.log('车辆的模具是：' + this.model);
+      }
+    };
+
+    let car = Object.create(vehicle, {
+      'id': {
+        enumerable: true // 默认writable: false, configurable: false
+      },
+      'model': {
+        value: '福特',
+        enumerable: true
+      }
+    });
+    car.getModel();
+    // 这里，可以在Object.create的第二个参数里使用对象字面量传入要初始化的额外属性，其语法与
+    // Object.defineProperties或Object.defineProperty方法类型。它允许自己设定属性的特性，
+    // 例如enumerable,writable或configurable。
+
+</script>
+<h2>总结</h2>
+<p>
+    原型模式在JavaScript里的使用简直是无处不在，其他很多模式也是基于prototype的，我们要注意的是浅
+    拷贝和深拷贝的问题，不要出现引用错误。
+</p>
+</body>
+</html>
