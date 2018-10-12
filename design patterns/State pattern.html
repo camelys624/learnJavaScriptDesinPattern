@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>状态模式</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<h2>介绍</h2>
+<p>
+    状态模式(State)允许一个对象在其内部状态改变的时候改变它的行为，对象看起来似乎修改了他的类。
+</p>
+<h2>正文</h2>
+<p>
+    举个栗子，比如我们平时在下载东西，通常就会有好几个状态，比如准备状态(ReadyState)、下载状
+    态(DownloadingState)、失败状态(DownloadFailState)，也就是说在每个状态都只可以做当前状
+    态才可以做的事情，而不能做其他状态能做的事儿。
+</p>
+<p>
+    由于State模式描述了下载(Download)如何在每一种状态下表现出不同的行为。这一模式的关键思想就
+    是引入了一个叫做State的抽象类（或JS里的函数）来表示下载的状态，State函数（作为原型）为每个
+    装题的子类（继承函数）声明了一些公共接口。其每个继承函数实现与特定状态相关的行为，比如DownloadingSate
+    和DownloadedState分别实现了正在下载和下载完毕的行为。这些行为可以通过Download来维护。
+</p>
+<script type="text/javascript">
+    let State = function () {
+
+    };
+    State.prototype.download = function () {
+      throw new Error('该方法必须被重载！');
+    };
+    State.prototype.pause = function () {
+      throw new Error('该方法必须被重载!');
+    };
+    State.prototype.fail = function () {
+      throw new Error('该方法必须被重载！');
+    };
+    State.prototype.finish = function () {
+      throw new Error('该方法必须被重载！！');
+    };
+    // 我们为State原型定义了4个接口方法，分别对应着下载(Download)、暂停(pause)、失败(fail)、结
+    // 束(finish)以便函数可以重写。
+
+    // 在变些子函数之前，现编写一个ReadyState函数，以便可以将状态传递给第一个download状态
+    let ReadyState = function (oDownload) {
+      State.apply(this);
+      this.oDownload = oDownload;
+    };
+    ReadyState.prototype = new State();
+    ReadyState.prototype.download = function () {
+      this.oDownload.setState(this.oDownload.getDownloadingState());
+      // Ready以后，可以开始下载，所以设置了Download函数里的状态获取方法
+      console.log('Start Download！');
+    };
+    ReadyState.prototype.pause = function () {
+      throw new Error('还没开始下载，不能暂停！');
+    };
+    ReadyState.prototype.fail = function () {
+      throw new Error('文件还没有开始下载，怎么能说失败！');
+    };
+    ReadyState.prototype.finish = function () {
+      throw new Error('文件没开始下载！');
+    };
+    // 该函数接受了一个Download维护函数的实例作为参数，Download函数用于控制状态的改变和获取（类
+    // 似于中央控制器，攘外不调用），ReadyState重写了原型的download方法，以便开始进行下载
+
+    let Download = function () {
+      this.oState = new ReadyState(this);
+    };
+    Download.prototype.setState = function (oState) {
+      this.oState = oState;
+    };
+    // 对外暴露的四个公共方法，以便外部调用
+    Download.prototype.download = function () {
+      this.oState.download();
+    };
+    Download.prototype.pause = function () {
+      this.oState.pause();
+    };
+    Download.prototype.fail = function () {
+      this.oState.fail();
+    };
+    Download.prototype.finish = function () {
+      this.oState.finish();
+    };
+    // 获取各种状态，传入当前this对象
+    Download.prototype.getReadyState = function () {
+      return new ReadyState(this);
+    };
+    Download.prototype.getDownloadingState = function () {
+      return new DownloadingState(this);
+    };
+    Download.prototype.getDownloadedPausedSate = function () {
+      return new DownloadPausedState(this);
+    };
+    Download.prototype.getDownloadedState = function () {
+      return new DownloadedState(this);
+    };
+    Download.prototype.getDownloadedFailedState = function () {
+      return new DownloadFailedState(this);
+    };
+    /*
+    * Download函数的原型提供了8个方法，4个是对用于下载状态的操作行为，另外4个是用于获取当前
+    * 4个不同的状态，这4个方法都是接收this作为参数，也就是将Download实例自身作为一个参数传
+    * 递给处理改请求的状态对象(ReadyState以及后面要实现的继承函数)，这使得状态对象在必要的
+    * 时候一刻访问oDownload
+    * */
+
+    // 接下来定义4个相关状态的函数：
+    let DownloadingState = function (oDownload) {
+      State.apply(this);
+      this.oDownload = oDownload;
+    };
+    DownloadingState.prototype = new State();
+    DownloadingState.prototype.download = function () {
+      throw new Error('文件已经在下载中了！');
+    };
+    DownloadingState.prototype.pause = function () {
+      this.oDownload.setState(this.oDownload.getDownloadedPausedSate());
+      console.log('暂停下载！');
+    };
+    DownloadingState.prototype.fail = function () {
+      this.oDownload.setState(this.oDownload.getDownloadedFailedState());
+      console.log('下载失败！');
+    };
+    DownloadingState.prototype.finish = function () {
+      this.oDownload.setState(this.oDownload.getDownloadedState());
+      console.log('下载完毕！');
+    };
+    // DownloadingState的主要注意事项就是已经正在下载的文件，不能再次开始下载了，其他的状态都可以继续进行。
+
+    let DownloadPausedState = function (oDownload) {
+      State.apply(this);
+      this.oDownload = oDownload;
+    };
+    DownloadPausedState.prototype = new State();
+    DownloadPausedState.prototype.download = function () {
+      this.oDownload.setState(this.oDownload.getDownloadingState());
+      console.log('继续下载！');
+    };
+    DownloadPausedState.prototype.pause = function () {
+      throw new Error('已经暂停不能再暂停!');
+    };
+    DownloadPausedState.prototype.fail = function () {
+      this.oDownload.setState(this.oDownload.getDownloadedFailedState());
+      console.log('下载失败！');
+    };
+    DownloadPausedState.prototype.finish = function () {
+      this.oDownload.setState(this.oDownload.getDownloadedState());
+      console.log('下载完成!');
+    };
+    // DownloadPauseState函数里要注意的是，已经暂停的下载，不能再次暂停
+    let DownloadedState = function (oDownload) {
+      State.apply(this);
+      this.oDownload = oDownload;
+    };
+    DownloadedState.prototype = new State();
+    DownloadedState.prototype.download = function () {
+      this.oDownload.setState(this.oDownload.getDownloadingState());
+      console.log('重新下载！');
+    };
+    DownloadedState.prototype.pause = function () {
+      throw new Error('下载完成，就不要暂停了！');
+    };
+    DownloadedState.prototype.fail = function () {
+      throw new Error('都下载完了，还是失败个毛！');
+    };
+    DownloadedState.prototype.finish = function () {
+      throw new Error('装怪！');
+    };
+    
+    let DownloadFailedState = function (oDownload) {
+      State.apply(this);
+      this.oDownload = oDownload;
+    };
+    DownloadFailedState.prototype = new State();
+    DownloadFailedState.prototype.download = function () {
+      this.oDownload.setState(this.oDownload.getDownloadingState());
+      console.log('尝试重新下载！');
+    };
+    DownloadFailedState.prototype.pause = function () {
+      throw new Error('都失败了，不能暂停！');
+    };
+    DownloadFailedState.prototype.fail = function () {
+      throw new Error('失败失败，装怪');
+    };
+    DownloadFailedState.prototype.finish = function () {
+      throw new Error('失败了阿！');
+    };
+</script>
+<h2>总结</h2>
+<p>
+    状态模式的使用场景也特别明确，有如下两点：
+</p>
+<ol>
+    <li>
+        一个对象的行为取决于它的状态，并且它必须在运行时刻根据状态改变它的行为。
+    </li>
+    <li>
+        一个操作中含有大量的分支语句，而且这些分支语句依赖于该对象的状态。状态通常为一个或多个枚举常量的表示。
+    </li>
+</ol>
+<h2>State Pattern</h2>
+<hr>
+<input type="button" value="开始下载" id="download_button" />
+<input type="button" value="暂停" id="pause_button" />
+<input type="button" value="重新下载" id="resume_button" />
+<script type="text/javascript">
+    let oDownload = new Download();
+    $('#download_button').click(function () {
+      oDownload.download();
+    });
+    $('#pause_button').click(function () {
+      oDownload.pause();
+    });
+    $('#resume_button').click(function () {
+      oDownload.download();
+    });
+</script>
+
+</body>
+</html>
