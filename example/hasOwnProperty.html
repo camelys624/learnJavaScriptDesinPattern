@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>hasOwnProperty</title>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let foo = {
+        hasOwnProperty: function () {
+          return false;
+        },
+        bar: 'Here be dragons'
+      };
+
+      foo.hasOwnProperty('bar');  // 总是返回false
+
+      // 使用{}对象的hasOwnProperty,并将其上下设置为foo
+      ({}).hasOwnProperty.call(foo, 'bar'); // true
+    </script>
+  </body>
+</html>
